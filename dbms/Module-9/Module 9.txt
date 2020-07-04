@@ -1,0 +1,176 @@
+/*Module 9 Assignment 1*/
+drop trigger trig1 on highschooler;
+create or replace function func1() returns trigger as
+$$
+begin
+  insert into likes select new.id, id from highschooler where grade = new.grade and id<>new.id;
+  return null;
+  end;
+$$
+language 'plpgsql';
+
+create trigger trig1
+  after insert on highschooler
+  for each row
+  execute procedure func1();
+
+insert into Highschooler values (146, 'Pranay', 10);
+-------------------------------------------------------------------
+
+/*Module 9 Assignment 2*/
+drop trigger grade_trigger on Highschooler;
+
+create trigger grade_trigger
+  after insert on highschooler
+  for each row
+  execute procedure grade_function();
+
+create or replace function grade_function() returns trigger as $var$
+begin
+if new.grade < 9 or new.grade > 12 then
+update highschooler set grade = null where id = new.id;
+end if;
+
+if new.grade is null then
+update highschooler set grade = 9 where id = new.id;
+end if;
+return new;
+end
+$var$ LANGUAGE plpgsql;
+
+insert into Highschooler values (145, 'Pranay', null);
+
+--------------------------------------------------------------------
+/*Module 9 Assignment 3*/
+drop trigger trigger31 on friend;
+create or replace function func3() returns trigger as
+  $$
+  begin
+    insert into friend values(new.id1, new.id2);
+    return null;
+  end;
+$$
+  language plpgsql;
+
+create trigger trigger31
+  after insert on friend
+  for each row
+  execute procedure func3();
+
+drop trigger trigger3 on friend;
+create or replace function fun3() returns trigger as
+  $$
+  begin
+    delete from friend where id1 = new.id2 and id2 = new.id1;
+    return null;
+  end;
+$$
+  language plpgsql;
+
+create trigger trigger3
+  before delete on friend
+  for each row
+  execute procedure fun3();
+
+drop trigger trigger3 on friend;
+delete from friend where id1 = 1510 and id2 = 1381;
+-----------------------------------------------------------------------------
+
+/*Module 9 Assignment 4*/
+create or replace function fun4() returns trigger as $var$
+  begin
+    if new.grade > 12 then
+    delete from highschooler where id=new.id;
+    return new;
+    end if;
+  end;
+$var$ language plpgsql;
+
+create trigger trigger4
+  after update on highschooler
+  for each row
+  execute procedure fun4();
+
+drop trigger trigger4 on highschooler;
+insert into Highschooler values (1996, 'Logan', 15);
+delete from Highschooler where id = 1995;
+-----------------------------------------------------------------------
+
+Prasamsa:::
+Ass-1:
+create trigger trig1 
+after insert on highschooler 
+for each row 
+execute procedure func1();
+
+create or replace function func1() returns trigger as $$
+begin
+insert into likes select new.id,id from highschooler where grade = new.grade and id<>new.id;
+return null;
+end;
+$$ language 'plpgsql';
+--------------------------------------------------
+Ass-2:
+
+CREATE TRIGGER name
+AFTER insert ON Highschooler
+FOR EACH ROW
+EXECUTE PROCEDURE funcName();
+
+CREATE OR REPLACE FUNCTION funcName() RETURNS trigger AS $var$
+BEGIN
+IF NEW.grade < 9 or NEW.grade > 12 THEN
+update Highschooler set grade=null where id=NEW.id;
+END IF;
+IF NEW.grade is null THEN
+update Highschooler set grade=9 where id=NEW.id;
+END IF;
+RETURN NEW;
+END;
+$var$ LANGUAGE plpgsql;
+-----------------------------------------------------------------
+Ass-3::
+CREATE TRIGGER fname
+AFTER INSERT on friend
+for each row
+execute procedure funcName();
+
+CREATE or REPLACE FUNCTION funcName() RETURNS trigger AS $var$
+BEGIN
+insert into friend values(new.id2, new.id1);
+return new;
+END;
+$var$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER name
+BEFORE delete on friend
+FOR EACH ROW
+EXECUTE PROCEDURE funcName();
+
+CREATE OR REPLACE FUNCTION funcName() RETURNS trigger AS $var$
+BEGIN
+delete from friend where id1 = new.id2 and id2 = new.id1;
+RETURN NEW;
+END;
+$var$ LANGUAGE plpgsql;
+---------------------------------------------------------
+
+Ass-4:
+
+
+CREATE TRIGGER HSname
+AFTER update on Highschooler
+FOR EACH ROW
+EXECUTE PROCEDURE funcName();
+
+CREATE OR REPLACE FUNCTION funcName() RETURNS trigger AS $var$
+BEGIN
+IF NEW.grade > 12 THEN
+delete from Highschooler where id = NEW.id;
+RETURN NEW;
+END IF;
+END;
+$var$ LANGUAGE plpgsql;
+--------------------------------
+
